@@ -8,6 +8,7 @@ Block distracting apps and pay $1 each time you want to unblock them. Every doll
 
 - **Super Simple**: Just tap an app to block it. That's it.
 - **$1 to Unblock**: When you try to open a blocked app, pay $1 to unlock it
+- **Psychological Taunts**: 19 savage messages that shame you into NOT paying ("Go ahead, waste your dollar 💸", "Your competition is working right now 🚀", "Really? Again? 🤨")
 - **Minimalist Design**: Clean, modern UI built with Jetpack Compose
 - **Real-time Blocking**: Uses Android AccessibilityService for instant app detection
 - **Local Storage**: Your blocked apps list is stored securely on your device
@@ -17,8 +18,9 @@ Block distracting apps and pay $1 each time you want to unblock them. Every doll
 
 1. **Block Apps**: Open Dollar Block and tap any app you want to block
 2. **Get Interrupted**: Try to open a blocked app? Dollar Block catches you!
-3. **Pay to Unblock**: See a beautiful prompt asking for $1 to proceed
-4. **Stay Focused**: Pay up or go back - either way, you're more conscious
+3. **Get Taunted**: See a random savage message designed to make you feel guilty
+4. **Pay $1 or Go Back**: The app psychologically nudges you to choose discipline
+5. **Stay Focused**: Most users go back - that's the point!
 
 ## 🚀 Setup Instructions
 
@@ -107,9 +109,22 @@ app/src/main/java/com/dollarblock/app/
 
 **Minimalism First**: Dollar Block does ONE thing and does it well. No complex features, no cluttered UI, no unnecessary options.
 
-**Obvious Action**: The "$1 to Unblock" button is front and center. No dark patterns, no hidden costs.
+**Psychological Discipline**: Unlike other blockers, this app uses taunts and guilt to make you NOT want to pay. It's a discipline tool, not a money-extraction scheme.
+
+**Obvious Action**: The "$1 to Unblock" button is front and center. No dark patterns, no hidden costs. But the "Stay Strong - Go Back" button is equally prominent.
 
 **Instant Feedback**: Real-time app blocking means you immediately know when you're about to break your focus.
+
+### The Taunt System
+
+Every time you try to unblock an app, you'll see one of 19 random taunts:
+- "Breaking already? Weak. 💀"
+- "Your goals can wait, right? ⏰"
+- "Do it. I dare you. 😈"
+- "This is why you're not progressing 📊"
+- "Imagine explaining this to your therapist 🛋️"
+
+**The psychology**: Loss aversion + guilt + challenge = you'll probably just go back.
 
 ## 🧪 Testing
 

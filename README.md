@@ -20,7 +20,8 @@ Block distracting apps and pay $1 each time you want to unblock them. Every doll
 2. **Get Interrupted**: Try to open a blocked app? Dollar Block catches you!
 3. **Get Taunted**: See a random savage message designed to make you feel guilty
 4. **Pay $1 or Go Back**: The app psychologically nudges you to choose discipline
-5. **Stay Focused**: Most users go back - that's the point!
+5. **If You Pay**: Watch as a checkmark appears, then get DESTROYED with a post-payment shame message in elegant serif font
+6. **Stay Focused**: Most users go back after the pre-payment taunt. Those who don't? They regret it.
 
 ## 🚀 Setup Instructions
 
@@ -117,14 +118,28 @@ app/src/main/java/com/dollarblock/app/
 
 ### The Taunt System
 
-Every time you try to unblock an app, you'll see one of 19 random taunts:
+**Pre-Payment Taunts** (19 messages):
+Every time you try to unblock an app, you'll see one of these:
 - "Breaking already? Weak. 💀"
 - "Your goals can wait, right? ⏰"
 - "Do it. I dare you. 😈"
 - "This is why you're not progressing 📊"
 - "Imagine explaining this to your therapist 🛋️"
 
-**The psychology**: Loss aversion + guilt + challenge = you'll probably just go back.
+**Post-Payment Shame** (13 messages):
+If you actually pay, the screen goes black and shows:
+- ✓ Green checkmark with satisfying bounce
+- Then one word in giant elegant serif font:
+  - "Weak."
+  - "Pathetic."
+  - "Disappointing."
+  - "So predictable."
+  - "You'll be back."
+
+**The psychology**:
+- Pre-payment: Loss aversion + guilt + challenge
+- Post-payment: Brief satisfaction (checkmark) → immediate regret (shame)
+- Result: You'll think twice before paying again
 
 ## 🧪 Testing
 

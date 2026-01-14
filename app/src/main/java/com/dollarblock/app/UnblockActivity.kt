@@ -77,6 +77,33 @@ fun UnblockScreen(
 ) {
     var isProcessing by remember { mutableStateOf(false) }
 
+    // Random taunt message - psychological warfare!
+    val tauntMessages = remember {
+        listOf(
+            "Go ahead, waste your dollar 💸",
+            "Really? Again? 🤨",
+            "Your future self is judging you right now 👀",
+            "Do it. We dare you. 😏",
+            "Is this really worth $1? 🤔",
+            "Still can't focus? 😴",
+            "Breaking already? Weak. 💀",
+            "Another distraction? Seriously? 🙄",
+            "We knew you'd be back 🎯",
+            "Discipline = 0 📉",
+            "Just pay. We want your money 💰",
+            "Your goals can wait, right? ⏰",
+            "One more scroll won't hurt... or will it? 📱",
+            "Champions don't need this app 🏆",
+            "This is why you're not progressing 📊",
+            "Do it. I dare you. 😈",
+            "Still wasting time? Classic. ⌛",
+            "Your competition is working right now 🚀",
+            "Imagine explaining this to your therapist 🛋️"
+        )
+    }
+
+    val randomTaunt = remember { tauntMessages.random() }
+
     // Pulsating animation for the lock icon
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val scale by infiniteTransition.animateFloat(
@@ -143,16 +170,35 @@ fun UnblockScreen(
 
                 Spacer(Modifier.height(12.dp))
 
+                // Taunt message - THE PSYCHOLOGICAL WEAPON
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.08f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        randomTaunt,
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 22.sp
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
+
                 // Subtitle
                 Text(
                     "This app is currently blocked.\nPay $1 to unblock it.",
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
-                    lineHeight = 22.sp
+                    lineHeight = 20.sp
                 )
 
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(24.dp))
 
                 // Pay button - The star of the show!
                 Button(
@@ -214,26 +260,33 @@ fun UnblockScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Cancel button
-                TextButton(
+                // Cancel button - Make this the hero action
+                OutlinedButton(
                     onClick = onCancel,
                     enabled = !isProcessing,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
                 ) {
                     Text(
-                        "Go Back",
+                        "Stay Strong - Go Back",
                         fontSize = 16.sp,
-                        color = Color.Gray
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(12.dp))
 
-                // Info text
+                // Motivational text
                 Text(
-                    "Stay focused. Your future self will thank you.",
+                    "Your discipline is worth more than $1",
                     fontSize = 12.sp,
-                    color = Color.Gray.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                     textAlign = TextAlign.Center,
                     lineHeight = 16.sp
                 )

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Dollar Block</string>
+    <string name="accessibility_service_description">Dollar Block monitors app usage to help you stay focused. When you try to open a blocked app, you\'ll be prompted to pay $1 to unblock it.</string>
+    <string name="block_apps">Block Apps</string>
+    <string name="blocked_apps">Blocked Apps</string>
+    <string name="no_blocked_apps">No apps blocked yet</string>
+    <string name="tap_to_select">Tap apps to block them</string>
+    <string name="pay_to_unblock">Pay $1 to Unblock</string>
+    <string name="blocked_message">This app is blocked</string>
+    <string name="enable_service">Enable Dollar Block Service</string>
+    <string name="service_disabled">Please enable accessibility service</string>
+    <string name="payment_successful">Payment successful! App unblocked.</string>
+    <string name="payment_failed">Payment failed. App remains blocked.</string>
+    <string name="go_back">Go Back</string>
+</resources>

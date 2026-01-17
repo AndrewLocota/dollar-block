@@ -6,22 +6,23 @@ Block distracting apps and pay $1 each time you want to unblock them. Every doll
 
 ## ✨ Features
 
-- **Super Simple**: Just tap an app to block it. That's it.
+- **Super Simple**: Toggle switches to block apps. That's it.
 - **$1 to Unblock**: When you try to open a blocked app, pay $1 to unlock it
-- **Psychological Taunts**: 19 savage messages that shame you into NOT paying ("Go ahead, waste your dollar 💸", "Your competition is working right now 🚀", "Really? Again? 🤨")
-- **Minimalist Design**: Clean, modern UI built with Jetpack Compose
+- **Sophisticated Taunts**: Elegant serif typography with devastating messages ("We want you to pay.\nGive in.", "Your future self is watching.")
+- **Full Black UI**: Minimalist design with serif fonts - looks like a luxury product
 - **Real-time Blocking**: Uses Android AccessibilityService for instant app detection
-- **Local Storage**: Your blocked apps list is stored securely on your device
+- **Post-Payment Shame**: Progress bar showing "UNLOCKING..." with countdown timer
 - **Stripe Integration**: Secure payment processing (test mode ready)
 
 ## 🎯 How It Works
 
-1. **Block Apps**: Open Dollar Block and tap any app you want to block
-2. **Get Interrupted**: Try to open a blocked app? Dollar Block catches you!
-3. **Get Taunted**: See a random savage message designed to make you feel guilty
-4. **Pay $1 or Go Back**: The app psychologically nudges you to choose discipline
-5. **If You Pay**: Watch as a checkmark appears, then get DESTROYED with a post-payment shame message in elegant serif font
-6. **Stay Focused**: Most users go back after the pre-payment taunt. Those who don't? They regret it.
+1. **Choose Your Poison**: Select apps to block with elegant toggle switches
+2. **Get Interrupted**: Try to open a blocked app? Full-screen black overlay appears
+3. **See The Taunt**: Large serif message: "We want you to pay.\nGive in."
+4. **Pay or Stay Focused**: White pill button to pay, or click "I'LL STAY FOCUSED"
+5. **If You Pay**: Checkmark appears, then "Weak." in 72sp italic serif
+6. **Watch The Progress**: "UNLOCKING INSTAGRAM..." with countdown and progress bar
+7. **Feel The Shame**: You paid. The app knows. You know.
 
 ## 🚀 Setup Instructions
 
@@ -108,38 +109,47 @@ app/src/main/java/com/dollarblock/app/
 
 ## 🎨 Design Philosophy
 
-**Minimalism First**: Dollar Block does ONE thing and does it well. No complex features, no cluttered UI, no unnecessary options.
+**Luxury Brutalism**: Full black backgrounds, sophisticated serif typography, brutal messaging. This looks like a $100 app that calls you pathetic.
 
-**Psychological Discipline**: Unlike other blockers, this app uses taunts and guilt to make you NOT want to pay. It's a discipline tool, not a money-extraction scheme.
+**Editorial Design**: Inspired by high-end magazines and Claude's interface. Large serif fonts (48-72sp), generous whitespace, italic emphasis.
 
-**Obvious Action**: The "$1 to Unblock" button is front and center. No dark patterns, no hidden costs. But the "Stay Strong - Go Back" button is equally prominent.
+**Psychological Warfare**: Two-stage shame system:
+1. Pre-payment: Sophisticated taunt to prevent payment
+2. Post-payment: Elegant humiliation with progress bar
 
-**Instant Feedback**: Real-time app blocking means you immediately know when you're about to break your focus.
+**No Friction**: Toggle switches, not taps. White pill buttons. Everything obvious.
 
 ### The Taunt System
 
-**Pre-Payment Taunts** (19 messages):
-Every time you try to unblock an app, you'll see one of these:
-- "Breaking already? Weak. 💀"
-- "Your goals can wait, right? ⏰"
-- "Do it. I dare you. 😈"
-- "This is why you're not progressing 📊"
-- "Imagine explaining this to your therapist 🛋️"
+**Pre-Payment Screen**:
+- Full black background
+- "LOCKED" indicator at top
+- Large serif taunt (48-52sp): "We want you to pay.\nGive in."
+- Subtitle question: "Is scrolling really worth a dollar?"
+- White rounded pill: "Pay $1.00 to Unblock"
+- Bottom text: "I'LL STAY FOCUSED"
 
-**Post-Payment Shame** (13 messages):
-If you actually pay, the screen goes black and shows:
-- ✓ Green checkmark with satisfying bounce
-- Then one word in giant elegant serif font:
-  - "Weak."
-  - "Pathetic."
-  - "Disappointing."
-  - "So predictable."
-  - "You'll be back."
+**Sample Pre-Payment Taunts**:
+- "We want you to pay.\nGive in." / "Is scrolling really worth a dollar?"
+- "Do it.\nWe dare you." / "Your discipline is worth less than $1?"
+- "Your future self\nis watching." / "Make them proud or disappoint them."
+- "Champions don't cave.\nYou will." / "We knew you'd be back."
 
-**The psychology**:
-- Pre-payment: Loss aversion + guilt + challenge
-- Post-payment: Brief satisfaction (checkmark) → immediate regret (shame)
-- Result: You'll think twice before paying again
+**Post-Payment Screen**:
+- Italic serif (72sp): "Weak."
+- Caps subtitle: "PREDICTABLE OUTCOME."
+- White circular checkmark
+- "-$1.00 deducted."
+- Progress bar: "UNLOCKING INSTAGRAM..."
+- Countdown: "Redirecting in 25s"
+
+**Sample Post-Payment Shames**:
+- "Weak." / "PREDICTABLE OUTCOME."
+- "Pathetic." / "EXPECTED BEHAVIOR."
+- "Soft." / "ZERO DISCIPLINE."
+- "Typical." / "NO SELF-CONTROL."
+
+**The Experience**: Feel like you're being judged by a sophisticated AI therapist who's disappointed in you.
 
 ## 🧪 Testing
 

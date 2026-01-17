@@ -95,59 +95,49 @@ fun UnblockScreen(
     onCancel: () -> Unit,
     onComplete: () -> Unit
 ) {
-
-    // Random taunt message - psychological warfare!
+    // Pre-payment taunts - sophisticated and cutting
     val tauntMessages = remember {
         listOf(
-            "Go ahead, waste your dollar 💸",
-            "Really? Again? 🤨",
-            "Your future self is judging you right now 👀",
-            "Do it. We dare you. 😏",
-            "Is this really worth $1? 🤔",
-            "Still can't focus? 😴",
-            "Breaking already? Weak. 💀",
-            "Another distraction? Seriously? 🙄",
-            "We knew you'd be back 🎯",
-            "Discipline = 0 📉",
-            "Just pay. We want your money 💰",
-            "Your goals can wait, right? ⏰",
-            "One more scroll won't hurt... or will it? 📱",
-            "Champions don't need this app 🏆",
-            "This is why you're not progressing 📊",
-            "Do it. I dare you. 😈",
-            "Still wasting time? Classic. ⌛",
-            "Your competition is working right now 🚀",
-            "Imagine explaining this to your therapist 🛋️"
+            "We want you to pay.\nGive in." to "Is scrolling really worth a dollar?",
+            "Do it.\nWe dare you." to "Your discipline is worth less than $1?",
+            "Breaking already?\nTypical." to "This is why you're not progressing.",
+            "Your goals can wait.\nRight?" to "One more scroll won't hurt...",
+            "Champions don't cave.\nYou will." to "We knew you'd be back.",
+            "Discipline is hard.\nGiving up is easy." to "Which will you choose?",
+            "Your future self\nis watching." to "Make them proud or disappoint them.",
+            "Still can't resist?\nWeak." to "This addiction costs $1 per hit.",
+            "The choice is yours.\nMake it count." to "Distraction or discipline?",
+            "We profit from\nyour weakness." to "Thank you for your contribution."
         )
     }
 
-    val randomTaunt = remember { tauntMessages.random() }
+    val (tauntMain, tauntSub) = remember { tauntMessages.random() }
 
-    // Post-payment shame messages - BRUTAL
+    // Post-payment shame messages - one word, devastating
     val shameMessages = remember {
         listOf(
-            "Weak.",
-            "Pathetic.",
-            "That was easy.",
-            "Zero discipline.",
-            "Couldn't resist.",
-            "We knew you'd fold.",
-            "Disappointing.",
-            "So predictable.",
-            "Not surprised.",
-            "Soft.",
-            "Typical.",
-            "Try harder next time.",
-            "You'll be back."
+            "Weak." to "PREDICTABLE OUTCOME.",
+            "Pathetic." to "EXPECTED BEHAVIOR.",
+            "Soft." to "ZERO DISCIPLINE.",
+            "Typical." to "NO SELF-CONTROL.",
+            "Disappointing." to "INEVITABLE RESULT.",
+            "Predictable." to "ADDICTION CONFIRMED.",
+            "Spineless." to "RESISTANCE: NONE."
         )
     }
 
-    val randomShame = remember { shameMessages.random() }
+    val (shameMain, shameSub) = remember { shameMessages.random() }
 
-    // Auto-close after showing shame
+    // Countdown timer for unlock progress
+    var countdown by remember { mutableStateOf(25) }
+
     LaunchedEffect(paymentState) {
         if (paymentState is PaymentState.Success) {
-            delay(2500) // Show shame for 2.5 seconds
+            // Countdown from 25 to 0 over 2.5 seconds
+            repeat(25) {
+                delay(100)
+                countdown = 25 - it - 1
+            }
             onComplete()
         } else if (paymentState is PaymentState.Error) {
             delay(1000)
@@ -155,259 +145,276 @@ fun UnblockScreen(
         }
     }
 
-    // Pulsating animation for the lock icon
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.85f)),
+            .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        // Main card with form
+        // PRE-PAYMENT SCREEN
         AnimatedVisibility(
             visible = paymentState !is PaymentState.Success,
-            exit = fadeOut(animationSpec = tween(500))
-        ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 8.dp
-            )
+            exit = fadeOut(animationSpec = tween(300))
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Lock icon with animation
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                // Lock icon at top
+                Row(
                     modifier = Modifier
-                        .size(80.dp)
-                        .scale(scale)
+                        .fillMaxWidth()
+                        .padding(top = 60.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         Icons.Default.Lock,
                         contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(20.dp),
-                        tint = MaterialTheme.colorScheme.error
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
                     )
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                // Title
-                Text(
-                    "App Blocked",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                // Taunt message - THE PSYCHOLOGICAL WEAPON
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.08f),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    Spacer(Modifier.width(8.dp))
                     Text(
-                        randomTaunt,
-                        modifier = Modifier.padding(16.dp),
-                        fontSize = 16.sp,
+                        "LOCKED",
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 22.sp
+                        color = Color.White.copy(alpha = 0.8f),
+                        letterSpacing = 2.sp
                     )
                 }
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.weight(1f))
 
-                // Subtitle
+                // Main taunt message - SERIF FONT
+                val lines = tauntMain.split("\n")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    lines.forEachIndexed { index, line ->
+                        Text(
+                            line,
+                            fontSize = if (index == 1) 52.sp else 48.sp,
+                            fontWeight = if (index == 1) FontWeight.Normal else FontWeight.Light,
+                            fontFamily = FontFamily.Serif,
+                            fontStyle = if (index == 1) androidx.compose.ui.text.font.FontStyle.Italic else androidx.compose.ui.text.font.FontStyle.Normal,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 56.sp
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(32.dp))
+
+                // Subtitle question
                 Text(
-                    "This app is currently blocked.\nPay $1 to unblock it.",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
+                    tauntSub,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                    lineHeight = 24.sp
                 )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.weight(1f))
 
-                // Pay button - The star of the show!
+                // Pay button - white rounded pill
                 Button(
                     onClick = onPayment,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(64.dp),
                     enabled = paymentState == PaymentState.Initial,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(32.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = Color.White,
+                        disabledContainerColor = Color.White.copy(alpha = 0.5f)
                     ),
                     elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
+                        defaultElevation = 0.dp
                     )
                 ) {
-                    when (paymentState) {
-                        PaymentState.Processing -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White,
-                                strokeWidth = 3.dp
-                            )
-                        }
-                        else -> {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    "Pay ",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color.White.copy(alpha = 0.3f)
-                                ) {
-                                    Text(
-                                        " $1 ",
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
-                                Text(
-                                    " to Unblock",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                            }
-                        }
+                    if (paymentState == PaymentState.Processing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.Black,
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        Text(
+                            "Pay $1.00 to Unblock",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black
+                        )
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(100.dp))
 
-                // Cancel button - Make this the hero action
-                OutlinedButton(
-                    onClick = onCancel,
-                    enabled = paymentState == PaymentState.Initial,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(
-                        "Stay Strong - Go Back",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // Motivational text
+                // Bottom "stay focused" text
                 Text(
-                    "Your discipline is worth more than $1",
+                    "I'LL STAY FOCUSED",
+                    modifier = Modifier.clickable(onClick = onCancel),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center,
-                    lineHeight = 16.sp
+                    color = Color.White.copy(alpha = 0.4f),
+                    letterSpacing = 2.sp
                 )
+
+                Spacer(Modifier.height(60.dp))
             }
         }
-        }
 
-        // POST-PAYMENT SHAME OVERLAY - THE FINAL BLOW
+        // POST-PAYMENT SHAME OVERLAY
         AnimatedVisibility(
             visible = paymentState is PaymentState.Success,
-            enter = fadeIn(animationSpec = tween(300)) + scaleIn(
-                initialScale = 0.8f,
-                animationSpec = tween(300, easing = FastOutSlowInEasing)
-            ),
+            enter = fadeIn(animationSpec = tween(300)),
             exit = fadeOut(animationSpec = tween(300))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.95f)),
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // Checkmark animation - satisfying but short-lived
+                    Spacer(Modifier.weight(0.3f))
+
+                    // Shame message - large serif
+                    Text(
+                        shameMain,
+                        fontSize = 72.sp,
+                        fontWeight = FontWeight.Light,
+                        fontFamily = FontFamily.Serif,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Subtitle in caps
+                    Text(
+                        shameSub,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.5f),
+                        letterSpacing = 2.sp,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(60.dp))
+
+                    // Checkmark with animation
                     val checkScale by animateFloatAsState(
                         targetValue = if (paymentState is PaymentState.Success) 1f else 0f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
+                            stiffness = Spring.StiffnessLow
                         ),
                         label = "checkScale"
                     )
 
                     Surface(
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(100.dp)
                             .scale(checkScale)
                     ) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(20.dp)
-                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color.Black,
+                                modifier = Modifier.size(60.dp)
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(40.dp))
 
-                    // The shame message - elegant serif font, devastating words
+                    // Dollar amount
                     Text(
-                        randomShame,
-                        fontSize = 64.sp,
-                        fontWeight = FontWeight.Light,
-                        fontFamily = FontFamily.Serif,
-                        color = Color.White.copy(alpha = 0.9f),
-                        letterSpacing = 2.sp,
+                        "-$1.00 deducted.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
                     )
+
+                    Spacer(Modifier.weight(1f))
+
+                    // Progress bar and status
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "UNLOCKING\nINSTAGRAM...",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White.copy(alpha = 0.8f),
+                                letterSpacing = 1.sp,
+                                lineHeight = 16.sp
+                            )
+                            Column(
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                Text(
+                                    "Redirecting in",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.White.copy(alpha = 0.5f)
+                                )
+                                Text(
+                                    "${countdown}s",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.White.copy(alpha = 0.5f)
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+
+                        // Progress bar
+                        val progress = (25 - countdown) / 25f
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(Color.White.copy(alpha = 0.2f))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(progress)
+                                    .height(2.dp)
+                                    .background(Color.White.copy(alpha = 0.6f))
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(60.dp))
                 }
             }
         }

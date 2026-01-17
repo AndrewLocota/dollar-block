@@ -22,13 +22,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.toBitmap
 import com.dollarblock.app.data.AppInfo
 import com.dollarblock.app.ui.theme.DollarBlockTheme
 import com.dollarblock.app.viewmodel.MainViewModel
@@ -57,109 +55,49 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
     onOpenAccessibilitySettings: () -> Unit
 ) {
     val installedApps by viewModel.installedApps.collectAsState()
-    val blockedApps by viewModel.blockedApps.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "Dollar Block",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                "$1",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onOpenAccessibilitySettings) {
-                        Icon(Icons.Default.Settings, "Settings")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { padding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(horizontal = 32.dp)
         ) {
-            // Blocked apps count card
-            AnimatedVisibility(
-                visible = blockedApps.isNotEmpty(),
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                "${blockedApps.size}",
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                "Apps Blocked",
-                                fontSize = 14.sp,
-                                color = Color.White.copy(alpha = 0.9f)
-                            )
-                        }
-                        Icon(
-                            Icons.Default.Lock,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-            }
+            Spacer(Modifier.height(60.dp))
 
-            // Instructions
+            // Header with italic serif
             Text(
-                "Tap apps to block them",
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                "Choose your poison.",
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Light,
+                fontFamily = FontFamily.Serif,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                color = Color.White,
+                lineHeight = 52.sp
             )
+
+            Spacer(Modifier.height(12.dp))
+
+            // Subtitle
+            Text(
+                "SELECT APPS TO BLOCK",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.5f),
+                letterSpacing = 2.sp
+            )
+
+            Spacer(Modifier.height(40.dp))
 
             // Apps list
             if (isLoading) {
@@ -167,89 +105,76 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = Color.White)
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     items(installedApps, key = { it.packageName }) { app ->
-                        AppItem(
+                        AppToggleItem(
                             app = app,
                             onToggle = { viewModel.toggleAppBlock(app) }
                         )
                     }
                 }
             }
+
+            Spacer(Modifier.height(20.dp))
+
+            // Done button
+            Button(
+                onClick = { /* Close or navigate */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Text(
+                    "DONE",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    letterSpacing = 2.sp
+                )
+            }
+
+            Spacer(Modifier.height(40.dp))
         }
     }
 }
 
 @Composable
-fun AppItem(app: AppInfo, onToggle: () -> Unit) {
-    Card(
+fun AppToggleItem(app: AppInfo, onToggle: () -> Unit) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .height(72.dp)
             .clickable(onClick = onToggle),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (app.isBlocked)
-                MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
-            else
-                MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (app.isBlocked) 2.dp else 1.dp
-        )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // App icon
-            app.icon?.let {
-                Image(
-                    bitmap = it.toBitmap(64, 64).asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
-            }
+        Text(
+            app.appName,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.White
+        )
 
-            Spacer(Modifier.width(16.dp))
-
-            // App name
-            Text(
-                app.appName,
-                modifier = Modifier.weight(1f),
-                fontSize = 16.sp,
-                fontWeight = if (app.isBlocked) FontWeight.SemiBold else FontWeight.Normal
+        // Toggle switch
+        Switch(
+            checked = app.isBlocked,
+            onCheckedChange = { onToggle() },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = Color.White.copy(alpha = 0.5f),
+                uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
+                uncheckedTrackColor = Color.White.copy(alpha = 0.2f)
             )
-
-            // Block indicator
-            AnimatedVisibility(
-                visible = app.isBlocked,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = "Blocked",
-                        tint = Color.White,
-                        modifier = Modifier.padding(6.dp)
-                    )
-                }
-            }
-        }
+        )
     }
 }

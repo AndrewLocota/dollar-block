@@ -1,11 +1,13 @@
 package com.dollarblock.app
 
+package com.dollarblock.app
+
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -20,20 +22,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dollarblock.app.ui.theme.DollarBlockTheme
 
+private const val PREFS_NAME = "dollar_block_prefs"
+private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+
 class OnboardingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Skip onboarding if already completed
+        if (hasCompletedOnboarding()) {
+            startMainActivity()
+            return
+        }
 
         setContent {
             DollarBlockTheme {
                 OnboardingScreen(
                     onContinue = {
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
+                        markOnboardingComplete()
+                        startMainActivity()
                     }
                 )
             }
         }
+    }
+
+    private fun hasCompletedOnboarding(): Boolean {
+        return getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_ONBOARDING_COMPLETED, false)
+    }
+
+    private fun markOnboardingComplete() {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_ONBOARDING_COMPLETED, true)
+            .apply()
+    }
+
+    private fun startMainActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }
 

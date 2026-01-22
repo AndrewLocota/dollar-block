@@ -24,20 +24,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import com.dollarblock.app.data.AppDatabase
-import com.dollarblock.app.payment.PaymentManager
-import com.dollarblock.app.payment.PaymentResult
 import com.dollarblock.app.ui.theme.DollarBlockTheme
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 
 class UnblockActivity : ComponentActivity() {
-    private lateinit var paymentManager: PaymentManager
     private var blockedPackage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         blockedPackage = intent.getStringExtra("blocked_package")
-        paymentManager = PaymentManager(this)
 
         setContent {
             DollarBlockTheme {
@@ -61,22 +59,15 @@ class UnblockActivity : ComponentActivity() {
     private fun handlePayment(onResult: (Boolean) -> Unit) {
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main)
         scope.launch {
-            when (val result = paymentManager.processPayment()) {
-                is PaymentResult.Success -> {
-                    // Unblock the app
-                    blockedPackage?.let { pkg ->
-                        val database = AppDatabase.getDatabase(applicationContext)
-                        database.blockedAppDao().deleteByPackageName(pkg)
-                    }
-                    onResult(true)
-                }
-                is PaymentResult.Error -> {
-                    onResult(false)
-                }
-                is PaymentResult.Cancelled -> {
-                    onResult(false)
-                }
+            // Simulate payment processing
+            kotlinx.coroutines.delay(1000)
+
+            // For demo: always succeed
+            blockedPackage?.let { pkg ->
+                val database = AppDatabase.getDatabase(applicationContext)
+                database.blockedAppDao().deleteByPackageName(pkg)
             }
+            onResult(true)
         }
     }
 }

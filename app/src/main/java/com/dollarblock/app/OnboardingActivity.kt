@@ -3,6 +3,7 @@ package com.dollarblock.app
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -22,27 +23,33 @@ import com.dollarblock.app.ui.theme.DollarBlockTheme
 
 private const val PREFS_NAME = "dollar_block_prefs"
 private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+private const val TAG = "DollarBlock"
 
 class OnboardingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "OnboardingActivity onCreate started")
 
         // Skip onboarding if already completed
         if (hasCompletedOnboarding()) {
+            Log.d(TAG, "Onboarding already completed, going to MainActivity")
             startMainActivity()
             return
         }
 
+        Log.d(TAG, "Showing onboarding screen")
         setContent {
             DollarBlockTheme {
                 OnboardingScreen(
                     onContinue = {
+                        Log.d(TAG, "User clicked continue")
                         markOnboardingComplete()
                         startMainActivity()
                     }
                 )
             }
         }
+        Log.d(TAG, "setContent completed")
     }
 
     private fun hasCompletedOnboarding(): Boolean {

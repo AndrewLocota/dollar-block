@@ -1,7 +1,5 @@
 package com.dollarblock.app
 
-package com.dollarblock.app
-
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle

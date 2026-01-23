@@ -6,27 +6,34 @@ import androidx.lifecycle.viewModelScope
 import com.dollarblock.app.data.AppInfo
 import com.dollarblock.app.data.BlockedApp
 import com.dollarblock.app.repository.AppRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = AppRepository(application)
 
-    private val _installedApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val installedApps: StateFlow<List<AppInfo>> = _installedApps.asStateFlow()
-
-    val blockedApps: StateFlow<List<BlockedApp>> = repository.blockedApps.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    // Cache of all installed apps (loaded once)
+    private val _allInstalledApps = MutableStateFlow<List<AppInfo>>(emptyList())
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    // Blocked apps from database (reactive)
+    private val blockedApps: Flow<List<BlockedApp>> = repository.blockedApps
+
+    // Reactively combine installed apps with blocked status
+    val installedApps: StateFlow<List<AppInfo>> = _allInstalledApps
+        .combine(blockedApps) { apps, blocked ->
+            val blockedPackages = blocked.map { it.packageName }.toSet()
+            apps.map { app ->
+                app.copy(isBlocked = blockedPackages.contains(app.packageName))
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     init {
         loadApps()
@@ -35,7 +42,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadApps() {
         viewModelScope.launch {
             _isLoading.value = true
-            _installedApps.value = repository.getInstalledApps()
+            _allInstalledApps.value = repository.getInstalledApps()
             _isLoading.value = false
         }
     }
@@ -47,7 +54,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 repository.blockApp(appInfo)
             }
-            loadApps()
+            // No need to reload - UI updates reactively via Flow!
         }
     }
 }

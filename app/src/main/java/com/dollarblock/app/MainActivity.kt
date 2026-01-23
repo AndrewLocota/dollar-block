@@ -8,6 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,10 +43,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val fromWidget = intent.getBooleanExtra("from_widget", false)
+
         setContent {
             DollarBlockTheme {
                 MainScreen(
                     viewModel = viewModel,
+                    fromWidget = fromWidget,
                     onOpenAccessibilitySettings = {
                         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                     }
@@ -59,17 +67,46 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
+    fromWidget: Boolean = false,
     onOpenAccessibilitySettings: () -> Unit
 ) {
     val installedApps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    // Pull-to-refresh state
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isLoading,
+        onRefresh = { viewModel.loadApps() }
+    )
+
+    // Morphing animation state
+    var isExpanded by remember { mutableStateOf(!fromWidget) }
+
+    LaunchedEffect(Unit) {
+        if (fromWidget) {
+            kotlinx.coroutines.delay(50) // Small delay for smooth animation
+            isExpanded = true
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        Column(
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn(animationSpec = tween(400)) +
+                    scaleIn(
+                        initialScale = 0.85f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ),
+            exit = fadeOut(animationSpec = tween(300))
+        ) {
+            Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 32.dp)
@@ -100,26 +137,41 @@ fun MainScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // Apps list
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color.White)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    items(installedApps, key = { it.packageName }) { app ->
-                        AppToggleItem(
-                            app = app,
-                            onToggle = { viewModel.toggleAppBlock(app) }
-                        )
+            // Apps list with pull-to-refresh
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .pullRefresh(pullRefreshState)
+            ) {
+                if (isLoading && installedApps.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        items(installedApps, key = { it.packageName }) { app ->
+                            AppToggleItem(
+                                app = app,
+                                onToggle = { viewModel.toggleAppBlock(app) }
+                            )
+                        }
                     }
                 }
+
+                // Pull refresh indicator
+                PullRefreshIndicator(
+                    refreshing = isLoading,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    backgroundColor = Color.White.copy(alpha = 0.9f),
+                    contentColor = Color.Black
+                )
             }
 
             Spacer(Modifier.height(20.dp))
@@ -145,6 +197,7 @@ fun MainScreen(
             }
 
             Spacer(Modifier.height(40.dp))
+            }
         }
     }
 }

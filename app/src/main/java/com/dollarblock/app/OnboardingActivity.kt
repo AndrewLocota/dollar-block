@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.delay
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +75,48 @@ class OnboardingActivity : ComponentActivity() {
 
 @Composable
 fun OnboardingScreen(onContinue: () -> Unit) {
+    // Parallax animation states
+    var isVisible by remember { mutableStateOf(false) }
+
+    // Staggered entrance animations for parallax effect
+    val headerAlpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(800, delayMillis = 100),
+        label = "headerAlpha"
+    )
+    val headerOffsetY by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 30.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "headerOffsetY"
+    )
+
+    val stepsAlpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(800, delayMillis = 400),
+        label = "stepsAlpha"
+    )
+    val stepsOffsetY by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 20.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        label = "stepsOffsetY"
+    )
+
+    val buttonAlpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(800, delayMillis = 700),
+        label = "buttonAlpha"
+    )
+    val buttonOffsetY by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 15.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
+        label = "buttonOffsetY"
+    )
+
+    LaunchedEffect(Unit) {
+        delay(50)
+        isVisible = true
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,9 +131,14 @@ fun OnboardingScreen(onContinue: () -> Unit) {
         ) {
             Spacer(Modifier.weight(0.3f))
 
-            // Main message
+            // Main message with parallax depth (slowest movement)
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = headerAlpha
+                        translationY = headerOffsetY.toPx()
+                    }
             ) {
                 Text(
                     "Discipline is",
@@ -135,9 +185,14 @@ fun OnboardingScreen(onContinue: () -> Unit) {
 
             Spacer(Modifier.height(60.dp))
 
-            // Three steps
+            // Three steps with parallax depth (medium movement)
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        alpha = stepsAlpha
+                        translationY = stepsOffsetY.toPx()
+                    },
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -148,12 +203,16 @@ fun OnboardingScreen(onContinue: () -> Unit) {
 
             Spacer(Modifier.weight(1f))
 
-            // CTA Button
+            // CTA Button with parallax depth (fastest movement - closest layer)
             Button(
                 onClick = onContinue,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .height(64.dp)
+                    .graphicsLayer {
+                        alpha = buttonAlpha
+                        translationY = buttonOffsetY.toPx()
+                    },
                 shape = RoundedCornerShape(32.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White

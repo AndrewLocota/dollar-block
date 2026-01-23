@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +29,9 @@ import com.dollarblock.app.ui.theme.DollarBlockTheme
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.platform.LocalView
+import android.view.SoundEffectConstants
 
 class UnblockActivity : ComponentActivity() {
     private var blockedPackage: String? = null
@@ -57,10 +61,9 @@ class UnblockActivity : ComponentActivity() {
     }
 
     private fun handlePayment(onResult: (Boolean) -> Unit) {
-        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main)
-        scope.launch {
+        lifecycleScope.launch {
             // Simulate payment processing
-            kotlinx.coroutines.delay(1000)
+            delay(1000)
 
             // For demo: always succeed
             blockedPackage?.let { pkg ->
@@ -213,37 +216,11 @@ fun UnblockScreen(
 
                 Spacer(Modifier.weight(1f))
 
-                // Pay button - white rounded pill
-                Button(
-                    onClick = onPayment,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    enabled = paymentState == PaymentState.Initial,
-                    shape = RoundedCornerShape(32.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        disabledContainerColor = Color.White.copy(alpha = 0.5f)
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 0.dp
-                    )
-                ) {
-                    if (paymentState == PaymentState.Processing) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.Black,
-                            strokeWidth = 3.dp
-                        )
-                    } else {
-                        Text(
-                            "Pay $1.00 to Unblock",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.Black
-                        )
-                    }
-                }
+                // Morphing pay button: pill → circle spinner → checkmark
+                MorphingPayButton(
+                    paymentState = paymentState,
+                    onPayment = onPayment
+                )
 
                 Spacer(Modifier.height(100.dp))
 
@@ -406,6 +383,90 @@ fun UnblockScreen(
                     }
 
                     Spacer(Modifier.height(60.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MorphingPayButton(
+    paymentState: PaymentState,
+    onPayment: () -> Unit
+) {
+    val view = LocalView.current
+
+    // Animate button width: full width → 64dp circle
+    val buttonWidth by animateDpAsState(
+        targetValue = if (paymentState == PaymentState.Initial) 1000.dp else 64.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "buttonWidth"
+    )
+
+    // Animate corner radius for morph effect
+    val cornerRadius by animateDpAsState(
+        targetValue = 32.dp, // Always fully rounded
+        animationSpec = tween(300),
+        label = "cornerRadius"
+    )
+
+    // Animate text alpha
+    val textAlpha by animateFloatAsState(
+        targetValue = if (paymentState == PaymentState.Initial) 1f else 0f,
+        animationSpec = tween(200),
+        label = "textAlpha"
+    )
+
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = {
+                view.playSoundEffect(SoundEffectConstants.CLICK)
+                onPayment()
+            },
+            modifier = Modifier
+                .width(buttonWidth.coerceAtMost(1000.dp))
+                .height(64.dp),
+            enabled = paymentState == PaymentState.Initial,
+            shape = RoundedCornerShape(cornerRadius),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                disabledContainerColor = Color.White
+            ),
+            contentPadding = PaddingValues(0.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                // Text content
+                Text(
+                    "Pay $1.00 to Unblock",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black.copy(alpha = textAlpha),
+                    modifier = Modifier.graphicsLayer { alpha = textAlpha }
+                )
+
+                // Spinner during processing
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = paymentState == PaymentState.Processing,
+                    enter = fadeIn(tween(300)) + scaleIn(tween(300)),
+                    exit = fadeOut(tween(200))
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        color = Color.Black,
+                        strokeWidth = 3.dp
+                    )
                 }
             }
         }

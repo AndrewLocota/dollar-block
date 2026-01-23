@@ -26,7 +26,7 @@ class AppRepository(private val context: Context) {
                 AppInfo(
                     packageName = appInfo.packageName,
                     appName = appInfo.loadLabel(packageManager).toString(),
-                    icon = appInfo.loadIcon(packageManager),
+                    icon = null, // Icons not displayed - skip loading for performance
                     isBlocked = blockedPackages.contains(appInfo.packageName)
                 )
             }

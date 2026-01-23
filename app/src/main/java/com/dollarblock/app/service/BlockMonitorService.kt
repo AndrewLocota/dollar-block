@@ -22,8 +22,12 @@ class BlockMonitorService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var monitoringJob: Job? = null
+    private var blockedAppsObserverJob: Job? = null
     private var lastCheckedTime = System.currentTimeMillis()
     private var lastBlockedPackage: String? = null
+
+    // Cached set of blocked package names - updated reactively via Flow
+    private val blockedPackages = mutableSetOf<String>()
 
     companion object {
         const val CHANNEL_ID = "dollar_block_monitor"
@@ -47,7 +51,20 @@ class BlockMonitorService : Service() {
         super.onCreate()
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
+        observeBlockedApps()
         startMonitoring()
+    }
+
+    private fun observeBlockedApps() {
+        val database = AppDatabase.getDatabase(applicationContext)
+        blockedAppsObserverJob = scope.launch {
+            database.blockedAppDao().getAllBlockedApps().collect { apps ->
+                synchronized(blockedPackages) {
+                    blockedPackages.clear()
+                    blockedPackages.addAll(apps.map { it.packageName })
+                }
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -89,9 +106,10 @@ class BlockMonitorService : Service() {
                 return
             }
 
-            // Check if app is blocked
-            val database = AppDatabase.getDatabase(applicationContext)
-            val isBlocked = database.blockedAppDao().isAppBlocked(packageName)
+            // Check if app is blocked (using cached set - no DB query!)
+            val isBlocked = synchronized(blockedPackages) {
+                blockedPackages.contains(packageName)
+            }
 
             if (isBlocked) {
                 lastBlockedPackage = packageName
@@ -144,6 +162,7 @@ class BlockMonitorService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         monitoringJob?.cancel()
+        blockedAppsObserverJob?.cancel()
         scope.cancel()
     }
 }

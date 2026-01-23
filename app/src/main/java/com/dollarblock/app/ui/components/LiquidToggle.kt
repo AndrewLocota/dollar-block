@@ -13,7 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import android.view.HapticFeedbackConstants
+import android.view.SoundEffectConstants
 
 /**
  * Liquid-style toggle switch with smooth, flowy animation.
@@ -25,6 +28,9 @@ fun LiquidToggle(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Get view for haptic feedback
+    val view = LocalView.current
+
     // Animate the thumb position smoothly
     val thumbPosition by animateFloatAsState(
         targetValue = if (checked) 1f else 0f,
@@ -60,7 +66,13 @@ fun LiquidToggle(
                         tryAwaitRelease()
                         isPressed = false
                     },
-                    onTap = { onCheckedChange(!checked) }
+                    onTap = {
+                        // Haptic feedback for premium feel
+                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                        // Soft click sound
+                        view.playSoundEffect(SoundEffectConstants.CLICK)
+                        onCheckedChange(!checked)
+                    }
                 )
             }
     ) {

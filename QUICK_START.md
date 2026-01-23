@@ -29,7 +29,30 @@ A **pixel-perfect Android app** matching your mockups:
    - Select device or create emulator
    - App installs and launches!
 
-## 📱 Testing Checklist
+## �️ Development Workflow (Claude Code + Android Studio)
+
+**Recommended Setup:**
+| Tool | Purpose |
+|------|---------|
+| **Android Studio** | Open `a:\DollarBlock` - for building, running, debugging, emulator |
+| **Claude Code** | Code edits, Git operations, file management |
+
+**When to Sync Gradle:**
+| Change Type | What to Do |
+|-------------|------------|
+| `.kt` / `.java` files | **Nothing!** Just rebuild (Ctrl+F9) or Run ▶️ |
+| XML layouts / strings | **Nothing!** Just rebuild |
+| `build.gradle.kts` edited | Click "Sync Now" banner (~30 sec) |
+| New dependencies added | Click "Sync Now" banner |
+| Gradle version changed | Full restart recommended |
+
+**Pro Tip:** Enable auto-sync in Android Studio:
+- `File → Settings → Build → Compiler`
+- ✅ Check "Sync project with Gradle files when project changes"
+
+This way most code changes are picked up automatically - just hit Run ▶️!
+
+## �📱 Testing Checklist
 
 - [ ] Launch app → See onboarding
 - [ ] Click "Link Card & Start Blocking →"

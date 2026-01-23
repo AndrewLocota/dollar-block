@@ -125,7 +125,7 @@ fun MainScreen(
 
             // Done button
             Button(
-                onClick = { /* Close or navigate */ },
+                onClick = onOpenAccessibilitySettings,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dollarblock.app.data.AppInfo
+import com.dollarblock.app.ui.components.LiquidToggle
 import com.dollarblock.app.ui.theme.DollarBlockTheme
 import com.dollarblock.app.viewmodel.MainViewModel
 
@@ -153,8 +154,7 @@ fun AppToggleItem(app: AppInfo, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .clickable(onClick = onToggle),
+            .height(72.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -162,19 +162,14 @@ fun AppToggleItem(app: AppInfo, onToggle: () -> Unit) {
             app.appName,
             fontSize = 18.sp,
             fontWeight = FontWeight.Normal,
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier.weight(1f)
         )
 
-        // Toggle switch
-        Switch(
+        // Liquid toggle switch - flowy, soft, premium
+        LiquidToggle(
             checked = app.isBlocked,
-            onCheckedChange = { onToggle() },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = Color.White.copy(alpha = 0.5f),
-                uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
-                uncheckedTrackColor = Color.White.copy(alpha = 0.2f)
-            )
+            onCheckedChange = { onToggle() }
         )
     }
 }

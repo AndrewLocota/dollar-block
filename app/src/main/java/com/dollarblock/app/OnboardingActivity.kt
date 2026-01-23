@@ -65,7 +65,7 @@ class OnboardingActivity : ComponentActivity() {
     }
 
     private fun startMainActivity() {
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, PermissionsActivity::class.java))
         finish()
     }
 }

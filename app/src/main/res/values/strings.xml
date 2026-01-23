@@ -28,4 +28,7 @@
     <string name="unlocking">UNLOCKING\n%1$s…</string>
     <string name="redirecting_in">Redirecting in</string>
     <string name="seconds_format">%1$ds</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Quick access to Dollar Block sessions</string>
 </resources>

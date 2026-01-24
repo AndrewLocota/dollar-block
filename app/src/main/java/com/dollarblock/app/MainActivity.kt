@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,

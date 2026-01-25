@@ -15,8 +15,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Cache of all installed apps (loaded once)
     private val _allInstalledApps = MutableStateFlow<List<AppInfo>>(emptyList())
 
-    private val _isLoading = MutableStateFlow(true)
+    private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    // Track if apps have been loaded
+    private var appsLoaded = false
 
     // Blocked apps from database (reactive)
     private val blockedApps: Flow<List<BlockedApp>> = repository.blockedApps
@@ -35,11 +38,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList()
         )
 
-    init {
-        loadApps()
+    fun loadApps() {
+        // Only load once - prevents double loading on init + resume
+        if (appsLoaded) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _allInstalledApps.value = repository.getInstalledApps()
+            _isLoading.value = false
+            appsLoaded = true
+        }
     }
 
-    fun loadApps() {
+    // For pull-to-refresh - force reload
+    fun refreshApps() {
         viewModelScope.launch {
             _isLoading.value = true
             _allInstalledApps.value = repository.getInstalledApps()

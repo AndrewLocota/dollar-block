@@ -57,11 +57,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadApps()
-    }
 }
 
 @OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
@@ -74,16 +69,21 @@ fun MainScreen(
     val installedApps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    // Load apps lazily only once when screen appears
+    LaunchedEffect(Unit) {
+        viewModel.loadApps()
+    }
+
     // Pull-to-refresh state
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isLoading,
-        onRefresh = { viewModel.loadApps() }
+        onRefresh = { viewModel.refreshApps() }
     )
 
     // Morphing animation state
     var isExpanded by remember { mutableStateOf(!fromWidget) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(fromWidget) {
         if (fromWidget) {
             kotlinx.coroutines.delay(50) // Small delay for smooth animation
             isExpanded = true

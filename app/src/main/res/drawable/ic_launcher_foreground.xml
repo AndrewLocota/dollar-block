@@ -6,29 +6,15 @@
     <group
         android:translateX="54"
         android:translateY="54">
-        <!-- Premium minimalist dollar sign $ -->
+        <!-- Ultra-premium minimalist $ symbol -->
 
-        <!-- Vertical line -->
+        <!-- Main dollar sign - single clean stroke -->
         <path
-            android:strokeWidth="6"
+            android:strokeWidth="7"
             android:strokeColor="#FFFFFF"
             android:strokeLineCap="round"
-            android:pathData="M0,-32 L0,32" />
-
-        <!-- Top S curve -->
-        <path
-            android:strokeWidth="6"
-            android:strokeColor="#FFFFFF"
-            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
             android:fillColor="#00000000"
-            android:pathData="M14,-16 Q14,-24 6,-24 L-6,-24 Q-14,-24 -14,-16 Q-14,-10 -8,-10 L8,-10 Q14,-10 14,-4 Q14,4 6,4 L-6,4 Q-14,4 -14,12" />
-
-        <!-- Bottom S curve -->
-        <path
-            android:strokeWidth="6"
-            android:strokeColor="#FFFFFF"
-            android:strokeLineCap="round"
-            android:fillColor="#00000000"
-            android:pathData="M-14,12 Q-14,20 -6,20 L6,20 Q14,20 14,12 Q14,6 8,6" />
+            android:pathData="M0,-28 L0,28 M12,-20 Q12,-26 6,-26 L-6,-26 Q-12,-26 -12,-20 Q-12,-14 -6,-14 L6,-14 Q12,-14 12,-8 Q12,0 6,0 L-6,0 Q-12,0 -12,6 Q-12,14 -6,14 L6,14 Q12,14 12,20" />
     </group>
 </vector>

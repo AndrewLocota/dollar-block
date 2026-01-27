@@ -43,9 +43,10 @@ class PermissionsActivity : ComponentActivity() {
                 var permissionsGranted by remember { mutableStateOf(hasUsageStatsPermission()) }
 
                 if (permissionsGranted) {
-                    // Start monitoring service
+                    // Start monitoring service and go to MainActivity
                     LaunchedEffect(Unit) {
                         BlockMonitorService.start(this@PermissionsActivity)
+                        startActivity(Intent(this@PermissionsActivity, MainActivity::class.java))
                         finish()
                     }
                 } else {
@@ -60,6 +61,7 @@ class PermissionsActivity : ComponentActivity() {
     private fun checkPermissions() {
         if (hasUsageStatsPermission()) {
             BlockMonitorService.start(this)
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }

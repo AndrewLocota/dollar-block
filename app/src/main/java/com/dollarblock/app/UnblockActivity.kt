@@ -2,7 +2,12 @@ package com.dollarblock.app
 
 import android.os.Bundle
 import android.content.Intent
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.compose.setContent
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -40,6 +45,18 @@ class UnblockActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Make fullscreen - immersive mode
+        enableEdgeToEdge()
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         blockedPackage = intent.getStringExtra("blocked_package")
 
@@ -99,38 +116,36 @@ fun UnblockScreen(
 ) {
     val view = LocalView.current
 
-    // Pre-payment taunts - sophisticated and cutting
-    val tauntMessages = remember {
-        listOf(
-            "We want you to pay.\nGive in." to "Is scrolling really worth a dollar?",
-            "Do it.\nWe dare you." to "Your discipline is worth less than $1?",
-            "Breaking already?\nTypical." to "This is why you're not progressing.",
-            "Your goals can wait.\nRight?" to "One more scroll won't hurt...",
-            "Champions don't cave.\nYou will." to "We knew you'd be back.",
-            "Discipline is hard.\nGiving up is easy." to "Which will you choose?",
-            "Your future self\nis watching." to "Make them proud or disappoint them.",
-            "Still can't resist?\nWeak." to "This addiction costs $1 per hit.",
-            "The choice is yours.\nMake it count." to "Distraction or discipline?",
-            "We profit from\nyour weakness." to "Thank you for your contribution."
-        )
-    }
+    // Pre-payment taunts - sophisticated and cutting - NEW RANDOM TAUNT EVERY TIME
+    val tauntMessages = listOf(
+        "We want you to pay.\nGive in." to "Is scrolling really worth a dollar?",
+        "Do it.\nWe dare you." to "Your discipline is worth less than $1?",
+        "Breaking already?\nTypical." to "This is why you're not progressing.",
+        "Your goals can wait.\nRight?" to "One more scroll won't hurt...",
+        "Champions don't cave.\nYou will." to "We knew you'd be back.",
+        "Discipline is hard.\nGiving up is easy." to "Which will you choose?",
+        "Your future self\nis watching." to "Make them proud or disappoint them.",
+        "Still can't resist?\nWeak." to "This addiction costs $1 per hit.",
+        "The choice is yours.\nMake it count." to "Distraction or discipline?",
+        "We profit from\nyour weakness." to "Thank you for your contribution."
+    )
 
-    val (tauntMain, tauntSub) = remember { tauntMessages.random() }
+    // Pick random taunt on EVERY composition (truly random every time)
+    val (tauntMain, tauntSub) = tauntMessages.random()
 
-    // Post-payment shame messages - one word, devastating
-    val shameMessages = remember {
-        listOf(
-            "Weak." to "PREDICTABLE OUTCOME.",
-            "Pathetic." to "EXPECTED BEHAVIOR.",
-            "Soft." to "ZERO DISCIPLINE.",
-            "Typical." to "NO SELF-CONTROL.",
-            "Disappointing." to "INEVITABLE RESULT.",
-            "Predictable." to "ADDICTION CONFIRMED.",
-            "Spineless." to "RESISTANCE: NONE."
-        )
-    }
+    // Post-payment shame messages - one word, devastating - RANDOM EVERY TIME
+    val shameMessages = listOf(
+        "Weak." to "PREDICTABLE OUTCOME.",
+        "Pathetic." to "EXPECTED BEHAVIOR.",
+        "Soft." to "ZERO DISCIPLINE.",
+        "Typical." to "NO SELF-CONTROL.",
+        "Disappointing." to "INEVITABLE RESULT.",
+        "Predictable." to "ADDICTION CONFIRMED.",
+        "Spineless." to "RESISTANCE: NONE."
+    )
 
-    val (shameMain, shameSub) = remember { shameMessages.random() }
+    // Pick random shame message on EVERY composition
+    val (shameMain, shameSub) = shameMessages.random()
 
     // Countdown timer for unlock progress
     var countdown by remember { mutableStateOf(25) }

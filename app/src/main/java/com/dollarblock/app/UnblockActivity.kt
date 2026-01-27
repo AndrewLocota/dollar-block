@@ -32,6 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.lifecycle.lifecycleScope
 import androidx.compose.ui.platform.LocalView
 import android.view.SoundEffectConstants
+import android.view.HapticFeedbackConstants
 
 class UnblockActivity : ComponentActivity() {
     private var blockedPackage: String? = null
@@ -89,6 +90,8 @@ fun UnblockScreen(
     onCancel: () -> Unit,
     onComplete: () -> Unit
 ) {
+    val view = LocalView.current
+
     // Pre-payment taunts - sophisticated and cutting
     val tauntMessages = remember {
         listOf(
@@ -227,7 +230,13 @@ fun UnblockScreen(
                 // Bottom "stay focused" text
                 Text(
                     "I'LL STAY FOCUSED",
-                    modifier = Modifier.clickable(onClick = onCancel),
+                    modifier = Modifier.clickable(onClick = {
+                        // Haptic feedback - strong vibration for staying focused
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        // Sound effect
+                        view.playSoundEffect(SoundEffectConstants.CLICK)
+                        onCancel()
+                    }),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(alpha = 0.4f),

@@ -67,9 +67,12 @@ object SessionManager {
     private fun startCountdown(context: Context, endTime: Long) {
         countdownJob?.cancel()
         countdownJob = scope.launch {
+            // Show notification immediately
+            updateNotification(context, endTime)
+
             while (isActive && System.currentTimeMillis() < endTime) {
-                updateNotification(context, endTime)
                 delay(60000) // Update every minute
+                updateNotification(context, endTime)
             }
 
             // Session ended
@@ -98,14 +101,24 @@ object SessionManager {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        // Format time display: "15:00" for premium feel
+        val timeText = if (minutesRemaining >= 10) {
+            "$minutesRemaining:00"
+        } else {
+            "0$minutesRemaining:00"
+        }
+
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle("Dollar Block Active")
-            .setContentText("$minutesRemaining min remaining")
+            .setContentTitle("Dollar Block")
+            .setContentText("$timeText remaining")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setShowWhen(false)
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("Session ends in $timeText")
+                .setBigContentTitle("Dollar Block Active"))
             .build()
     }
 

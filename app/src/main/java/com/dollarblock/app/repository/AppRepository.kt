@@ -20,15 +20,22 @@ class AppRepository(private val context: Context) {
         val blockedPackages = blockedApps.firstOrNull()?.map { it.packageName }?.toSet() ?: emptySet()
 
         // Get all apps with launcher intent (apps user can actually open)
+        // This includes apps on internal storage, SD card, and external storage
         val launcherIntent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
 
-        val launchableApps = packageManager.queryIntentActivities(launcherIntent, 0)
+        val launchableApps = packageManager.queryIntentActivities(
+            launcherIntent,
+            PackageManager.MATCH_ALL or PackageManager.MATCH_DISABLED_COMPONENTS
+        )
             .mapNotNull { it.activityInfo?.packageName }
             .toSet()
 
-        return packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        // Get ALL installed apps (internal + external storage)
+        return packageManager.getInstalledApplications(
+            PackageManager.GET_META_DATA or PackageManager.MATCH_UNINSTALLED_PACKAGES
+        )
             .filter { launchableApps.contains(it.packageName) } // Only apps with launcher
             .filter { it.packageName != context.packageName } // Exclude ourselves
             .map { appInfo ->

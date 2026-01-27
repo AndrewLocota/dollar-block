@@ -101,9 +101,14 @@ class BlockMonitorService : Service() {
         }
 
         currentPackage?.let { packageName ->
-            // Don't block ourselves or system apps
-            if (packageName == this.packageName || packageName == lastBlockedPackage) {
+            // Don't block ourselves
+            if (packageName == this.packageName) {
                 return
+            }
+
+            // Reset lastBlockedPackage if user switched to a different app
+            if (packageName != lastBlockedPackage) {
+                lastBlockedPackage = null
             }
 
             // Check if app is blocked (using cached set - no DB query!)
@@ -111,9 +116,17 @@ class BlockMonitorService : Service() {
                 blockedPackages.contains(packageName)
             }
 
-            if (isBlocked) {
+            if (isBlocked && lastBlockedPackage != packageName) {
                 lastBlockedPackage = packageName
                 showBlockScreen(packageName)
+
+                // Reset after 2 seconds to allow re-blocking if user tries again
+                scope.launch {
+                    delay(2000)
+                    if (lastBlockedPackage == packageName) {
+                        lastBlockedPackage = null
+                    }
+                }
             }
         }
     }

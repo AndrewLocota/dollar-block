@@ -108,17 +108,31 @@ object SessionManager {
             "0$minutesRemaining:00"
         }
 
+        // End session action
+        val endSessionIntent = Intent(context, SessionActionReceiver::class.java).apply {
+            action = "END_SESSION"
+        }
+        val endSessionPendingIntent = PendingIntent.getBroadcast(
+            context, 1, endSessionIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle("🔒 Dollar Block")
-            .setContentText("$timeText")
-            .setSubText("Session active")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("🔒 Focus Session")
+            .setContentText(timeText)
+            .setSubText("Tap to view blocked apps")
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setShowWhen(false)
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "End",
+                endSessionPendingIntent
+            )
             .build()
     }
 

@@ -61,5 +61,13 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".service.SessionActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="END_SESSION" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

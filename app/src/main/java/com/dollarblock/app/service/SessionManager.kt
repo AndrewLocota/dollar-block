@@ -109,16 +109,16 @@ object SessionManager {
         }
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle("Dollar Block")
-            .setContentText("$timeText remaining")
+            .setContentTitle("🔒 Dollar Block")
+            .setContentText("$timeText")
+            .setSubText("Session active")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setShowWhen(false)
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("Session ends in $timeText")
-                .setBigContentTitle("Dollar Block Active"))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .build()
     }
 
@@ -126,11 +126,14 @@ object SessionManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Blocking Session",
-                NotificationManager.IMPORTANCE_DEFAULT
+                "Focus Session Timer",
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Shows active blocking session countdown"
+                description = "Shows countdown timer for blocking session"
                 setShowBadge(true)
+                enableLights(false)
+                enableVibration(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)

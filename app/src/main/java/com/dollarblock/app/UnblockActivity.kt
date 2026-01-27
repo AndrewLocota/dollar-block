@@ -1,6 +1,7 @@
 package com.dollarblock.app
 
 import android.os.Bundle
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.*
@@ -54,7 +55,15 @@ class UnblockActivity : ComponentActivity() {
                             paymentState = if (success) PaymentState.Success else PaymentState.Error
                         }
                     },
-                    onCancel = { finish() },
+                    onCancel = {
+                        // Go to home screen - close blocked app
+                        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                            addCategory(Intent.CATEGORY_HOME)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(homeIntent)
+                        finish()
+                    },
                     onComplete = { finish() }
                 )
             }
@@ -67,10 +76,8 @@ class UnblockActivity : ComponentActivity() {
             delay(1000)
 
             // For demo: always succeed
-            blockedPackage?.let { pkg ->
-                val database = AppDatabase.getDatabase(applicationContext)
-                database.blockedAppDao().deleteByPackageName(pkg)
-            }
+            // NOTE: App stays blocked during session - we DON'T delete it
+            // Payment just lets you use it temporarily this one time
             onResult(true)
         }
     }
@@ -327,7 +334,7 @@ fun UnblockScreen(
 
                     // Dollar amount
                     Text(
-                        "-$1.00 deducted.",
+                        "-$1 deducted.",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
                         color = Color.White.copy(alpha = 0.7f),
@@ -458,7 +465,7 @@ fun MorphingPayButton(
             ) {
                 // Text content
                 Text(
-                    "Pay $1.00 to Unblock",
+                    "Pay $1 to Unblock",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black.copy(alpha = textAlpha),

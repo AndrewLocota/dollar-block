@@ -49,33 +49,49 @@ class PermissionsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Request notification permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
         setContent {
             DollarBlockTheme {
-                var permissionsGranted by remember { mutableStateOf(hasUsageStatsPermission()) }
+                var permissionsGranted by remember { mutableStateOf(false) }
+
+                // Check permissions on every resume (when user comes back from settings)
+                LaunchedEffect(Unit) {
+                    permissionsGranted = hasUsageStatsPermission()
+                }
 
                 if (permissionsGranted) {
-                    // Start monitoring service and go to MainActivity
+                    // Request notification permission FIRST before going to MainActivity
                     LaunchedEffect(Unit) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (ContextCompat.checkSelfPermission(
+                                    this@PermissionsActivity,
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        }
+                        // Small delay to let notification permission request show
+                        kotlinx.coroutines.delay(500)
                         BlockMonitorService.start(this@PermissionsActivity)
                         startActivity(Intent(this@PermissionsActivity, MainActivity::class.java))
                         finish()
                     }
                 } else {
                     PermissionsScreen(
-                        onRequestPermissions = { requestUsageStatsPermission() }
+                        onRequestPermissions = { requestUsageStatsPermission() },
+                        onCheckAgain = {
+                            permissionsGranted = hasUsageStatsPermission()
+                        }
                     )
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Recreate to refresh permission state when coming back from settings
+        recreate()
     }
 
     private fun checkPermissions() {
@@ -111,7 +127,10 @@ class PermissionsActivity : ComponentActivity() {
 }
 
 @Composable
-fun PermissionsScreen(onRequestPermissions: () -> Unit) {
+fun PermissionsScreen(
+    onRequestPermissions: () -> Unit,
+    onCheckAgain: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -190,15 +209,33 @@ fun PermissionsScreen(onRequestPermissions: () -> Unit) {
                 )
             }
 
+            Spacer(Modifier.height(16.dp))
+
+            // Check again button
+            TextButton(
+                onClick = onCheckAgain,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Text(
+                    "I've Granted Permission - Check Again",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+            }
+
             Spacer(Modifier.height(20.dp))
 
             // Info text
             Text(
-                "Required for app blocking",
+                "Find \"Dollar Block\" in the list and enable it",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.4f),
-                letterSpacing = 2.sp
+                letterSpacing = 1.sp,
+                textAlign = TextAlign.Center
             )
 
             Spacer(Modifier.height(60.dp))

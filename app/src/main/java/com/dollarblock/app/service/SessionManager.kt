@@ -4,6 +4,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.dollarblock.app.MainActivity
 import com.dollarblock.app.R
@@ -22,6 +23,7 @@ object SessionManager {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun startSession(context: Context, durationMinutes: Int = 15) {
+        Log.d("SessionManager", "Starting $durationMinutes minute session")
         val endTime = System.currentTimeMillis() + (durationMinutes * 60 * 1000)
 
         // Save session end time
@@ -35,6 +37,7 @@ object SessionManager {
 
         // Start blocking service
         BlockMonitorService.start(context)
+        Log.d("SessionManager", "Session started, notification should be visible")
     }
 
     fun endSession(context: Context) {
@@ -85,10 +88,12 @@ object SessionManager {
         val minutes = (remaining / 60000).toInt()
 
         if (minutes <= 0) {
+            Log.d("SessionManager", "Session ended")
             endSession(context)
             return
         }
 
+        Log.d("SessionManager", "Updating notification: $minutes minutes remaining")
         val notification = buildNotification(context, minutes)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(SESSION_NOTIFICATION_ID, notification)

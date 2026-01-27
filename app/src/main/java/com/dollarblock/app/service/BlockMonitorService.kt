@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.dollarblock.app.MainActivity
 import com.dollarblock.app.R
@@ -49,6 +50,7 @@ class BlockMonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d("BlockMonitor", "Service created - starting monitoring")
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
         observeBlockedApps()
@@ -62,6 +64,7 @@ class BlockMonitorService : Service() {
                 synchronized(blockedPackages) {
                     blockedPackages.clear()
                     blockedPackages.addAll(apps.map { it.packageName })
+                    Log.d("BlockMonitor", "Blocked apps updated: ${blockedPackages.size} apps - ${blockedPackages.joinToString()}")
                 }
             }
         }
@@ -117,7 +120,12 @@ class BlockMonitorService : Service() {
                 blockedPackages.contains(packageName)
             }
 
+            if (isBlocked) {
+                Log.d("BlockMonitor", "Detected blocked app: $packageName")
+            }
+
             if (isBlocked && lastBlockedPackage != packageName) {
+                Log.d("BlockMonitor", "BLOCKING: $packageName")
                 lastBlockedPackage = packageName
                 showBlockScreen(packageName)
 
@@ -126,6 +134,7 @@ class BlockMonitorService : Service() {
                     delay(2000)
                     if (lastBlockedPackage == packageName) {
                         lastBlockedPackage = null
+                        Log.d("BlockMonitor", "Reset block cooldown for $packageName")
                     }
                 }
             }

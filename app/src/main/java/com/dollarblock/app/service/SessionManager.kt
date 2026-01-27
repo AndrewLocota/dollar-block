@@ -68,9 +68,11 @@ object SessionManager {
     }
 
     private fun startCountdown(context: Context, endTime: Long) {
+        Log.d("SessionManager", "Starting countdown, end time: $endTime")
         countdownJob?.cancel()
         countdownJob = scope.launch {
             // Show notification immediately
+            Log.d("SessionManager", "Posting initial notification")
             updateNotification(context, endTime)
 
             while (isActive && System.currentTimeMillis() < endTime) {
@@ -79,6 +81,7 @@ object SessionManager {
             }
 
             // Session ended
+            Log.d("SessionManager", "Countdown finished, ending session")
             endSession(context)
         }
     }
@@ -96,7 +99,10 @@ object SessionManager {
         Log.d("SessionManager", "Updating notification: $minutes minutes remaining")
         val notification = buildNotification(context, minutes)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        Log.d("SessionManager", "Posting notification to system (ID: $SESSION_NOTIFICATION_ID)")
         notificationManager.notify(SESSION_NOTIFICATION_ID, notification)
+        Log.d("SessionManager", "Notification posted successfully")
     }
 
     private fun buildNotification(context: Context, minutesRemaining: Int): Notification {
@@ -124,19 +130,23 @@ object SessionManager {
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Focus Session")
+            .setContentTitle("🔒 Focus Session")
             .setContentText(timeText)
-            .setSubText("Tap to manage blocked apps")
+            .setSubText("Tap to manage")
             .setContentIntent(pendingIntent)
-            .setOngoing(true)
+            .setOngoing(true)  // Makes it permanent
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setAutoCancel(false)  // Don't dismiss on tap
+            .setOnlyAlertOnce(true)  // Only alert on first show
+            .setSound(null)  // No sound for countdown updates
+            .setColorized(true)
+            .setColor(0xFF000000.toInt())  // Black color
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
-                "End Session",
+                "End",
                 endSessionPendingIntent
             )
             .build()
@@ -147,16 +157,18 @@ object SessionManager {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Focus Session Timer",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_HIGH  // HIGH importance for heads-up
             ).apply {
                 description = "Shows countdown timer for blocking session"
                 setShowBadge(true)
                 enableLights(false)
                 enableVibration(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                setSound(null, null)  // No sound for updates
             }
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
+            Log.d("SessionManager", "Notification channel created with IMPORTANCE_HIGH")
         }
     }
 }

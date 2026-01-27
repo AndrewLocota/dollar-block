@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.activity.compose.BackHandler
 import com.dollarblock.app.service.SessionManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -51,8 +52,12 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel,
                     fromWidget = fromWidget,
                     onStartSession = {
+                        android.util.Log.d("MainActivity", "START SESSION button clicked")
+
                         // Start 15-minute blocking session
                         SessionManager.startSession(this, durationMinutes = 15)
+
+                        android.util.Log.d("MainActivity", "Session started, going to home screen")
 
                         // Go to home screen - don't just finish() or it shows app switcher
                         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -77,6 +82,12 @@ fun MainScreen(
 ) {
     val installedApps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    // Handle back button - just minimize app (go home)
+    BackHandler {
+        // Don't close app, just go to home screen
+        // User can come back to adjust blocked apps
+    }
 
     // Load apps lazily only once when screen appears
     LaunchedEffect(Unit) {

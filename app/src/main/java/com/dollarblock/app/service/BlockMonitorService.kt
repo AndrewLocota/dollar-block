@@ -77,7 +77,7 @@ class BlockMonitorService : Service() {
         monitoringJob = scope.launch {
             while (isActive) {
                 checkCurrentApp()
-                delay(500) // Check every 500ms
+                delay(200) // Check every 200ms for faster response
             }
         }
     }
@@ -86,13 +86,14 @@ class BlockMonitorService : Service() {
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val currentTime = System.currentTimeMillis()
 
-        // Get events in last second
-        val events = usageStatsManager.queryEvents(lastCheckedTime, currentTime)
-        lastCheckedTime = currentTime
+        // Look back 1 second to catch any events we might have missed
+        val startTime = currentTime - 1000
+        val events = usageStatsManager.queryEvents(startTime, currentTime)
 
         val event = UsageEvents.Event()
         var currentPackage: String? = null
 
+        // Find the most recent MOVE_TO_FOREGROUND event
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
             if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
@@ -165,10 +166,11 @@ class BlockMonitorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Dollar Block Active")
             .setContentText("Monitoring blocked apps")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
 

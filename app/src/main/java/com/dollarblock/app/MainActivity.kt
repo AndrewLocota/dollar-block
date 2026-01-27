@@ -53,7 +53,13 @@ class MainActivity : ComponentActivity() {
                     onStartSession = {
                         // Start 15-minute blocking session
                         SessionManager.startSession(this, durationMinutes = 15)
-                        // Close app and show notification
+
+                        // Go to home screen - don't just finish() or it shows app switcher
+                        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                            addCategory(Intent.CATEGORY_HOME)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(homeIntent)
                         finish()
                     }
                 )

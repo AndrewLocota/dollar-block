@@ -118,19 +118,20 @@ object SessionManager {
         )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("🔒 Focus Session")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Focus Session")
             .setContentText(timeText)
-            .setSubText("Tap to view blocked apps")
+            .setSubText("Tap to manage blocked apps")
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
-                "End",
+                "End Session",
                 endSessionPendingIntent
             )
             .build()

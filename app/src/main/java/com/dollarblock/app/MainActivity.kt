@@ -2,10 +2,10 @@ package com.dollarblock.app
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.dollarblock.app.service.SessionManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
@@ -50,8 +50,11 @@ class MainActivity : ComponentActivity() {
                 MainScreen(
                     viewModel = viewModel,
                     fromWidget = fromWidget,
-                    onOpenAccessibilitySettings = {
-                        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    onStartSession = {
+                        // Start 15-minute blocking session
+                        SessionManager.startSession(this, durationMinutes = 15)
+                        // Close app and show notification
+                        finish()
                     }
                 )
             }
@@ -64,7 +67,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     viewModel: MainViewModel,
     fromWidget: Boolean = false,
-    onOpenAccessibilitySettings: () -> Unit
+    onStartSession: () -> Unit
 ) {
     val installedApps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -177,19 +180,22 @@ fun MainScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // Done button
+            // Start Session button
+            val blockedCount = installedApps.count { it.isBlocked }
             Button(
-                onClick = onOpenAccessibilitySettings,
+                onClick = onStartSession,
+                enabled = blockedCount > 0,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
+                    containerColor = Color.White,
+                    disabledContainerColor = Color.White.copy(alpha = 0.3f)
                 )
             ) {
                 Text(
-                    "DONE",
+                    if (blockedCount > 0) "START 15 MIN SESSION" else "SELECT APPS FIRST",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,

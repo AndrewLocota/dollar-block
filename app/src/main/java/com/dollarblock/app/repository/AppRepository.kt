@@ -19,8 +19,17 @@ class AppRepository(private val context: Context) {
         val packageManager = context.packageManager
         val blockedPackages = blockedApps.firstOrNull()?.map { it.packageName }?.toSet() ?: emptySet()
 
+        // Get all apps with launcher intent (apps user can actually open)
+        val launcherIntent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
+            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        }
+
+        val launchableApps = packageManager.queryIntentActivities(launcherIntent, 0)
+            .mapNotNull { it.activityInfo?.packageName }
+            .toSet()
+
         return packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.flags and ApplicationInfo.FLAG_SYSTEM == 0 } // Only user apps
+            .filter { launchableApps.contains(it.packageName) } // Only apps with launcher
             .filter { it.packageName != context.packageName } // Exclude ourselves
             .map { appInfo ->
                 AppInfo(
